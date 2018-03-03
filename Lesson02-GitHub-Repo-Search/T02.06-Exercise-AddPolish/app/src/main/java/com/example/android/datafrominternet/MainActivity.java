@@ -21,12 +21,16 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.android.datafrominternet.utilities.NetworkUtils;
 
 import java.io.IOException;
 import java.net.URL;
+
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,9 +40,9 @@ public class MainActivity extends AppCompatActivity {
 
     private TextView mSearchResultsTextView;
 
-    // TODO (12) Create a variable to store a reference to the error message TextView
+    private TextView mErrorMessageTextView;
 
-    // TODO (24) Create a ProgressBar variable to store a reference to the ProgressBar
+    private ProgressBar mLoadingProgressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,9 +54,9 @@ public class MainActivity extends AppCompatActivity {
         mUrlDisplayTextView = (TextView) findViewById(R.id.tv_url_display);
         mSearchResultsTextView = (TextView) findViewById(R.id.tv_github_search_results_json);
 
-        // TODO (13) Get a reference to the error TextView using findViewById
+        mErrorMessageTextView = (TextView) findViewById(R.id.tv_error_message_display);
 
-        // TODO (25) Get a reference to the ProgressBar using findViewById
+        mLoadingProgressBar = (ProgressBar) findViewById(R.id.pb_loading_indicator);
     }
 
     /**
@@ -68,13 +72,23 @@ public class MainActivity extends AppCompatActivity {
         new GithubQueryTask().execute(githubSearchUrl);
     }
 
-    // TODO (14) Create a method called showJsonDataView to show the data and hide the error
+    private void showJsonDataView() {
+        mErrorMessageTextView.setVisibility(INVISIBLE);
+        mSearchResultsTextView.setVisibility(VISIBLE);
+    }
 
-    // TODO (15) Create a method called showErrorMessage to show the error and hide the data
+    private void showErrorMessage() {
+        mSearchResultsTextView.setVisibility(INVISIBLE);
+        mErrorMessageTextView.setVisibility(VISIBLE);
+    }
 
     public class GithubQueryTask extends AsyncTask<URL, Void, String> {
 
-        // TODO (26) Override onPreExecute to set the loading indicator to visible
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            mLoadingProgressBar.setVisibility(VISIBLE);
+        }
 
         @Override
         protected String doInBackground(URL... params) {
@@ -90,12 +104,14 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String githubSearchResults) {
-            // TODO (27) As soon as the loading is complete, hide the loading indicator
-            if (githubSearchResults != null && !githubSearchResults.equals("")) {
-                // TODO (17) Call showJsonDataView if we have valid, non-null results
-                mSearchResultsTextView.setText(githubSearchResults);
+            mLoadingProgressBar.setVisibility(INVISIBLE);
+            if (githubSearchResults == null || githubSearchResults.equals("")) {
+                showErrorMessage();
+                return;
             }
-            // TODO (16) Call showErrorMessage if the result is null in onPostExecute
+
+            showJsonDataView();
+            mSearchResultsTextView.setText(githubSearchResults);
         }
     }
 
