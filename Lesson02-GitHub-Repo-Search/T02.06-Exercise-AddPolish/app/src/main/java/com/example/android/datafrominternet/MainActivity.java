@@ -15,9 +15,11 @@
  */
 package com.example.android.datafrominternet;
 
+import android.app.Activity;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.EditText;
@@ -25,6 +27,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.example.android.datafrominternet.utilities.NetworkUtils;
+import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
+import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.security.ProviderInstaller;
 
 import java.io.IOException;
 import java.net.URL;
@@ -44,9 +50,23 @@ public class MainActivity extends AppCompatActivity {
 
     private ProgressBar mLoadingProgressBar;
 
+    private void updateAndroidSecurityProvider(Activity callingActivity) {
+        try {
+            ProviderInstaller.installIfNeeded(this);
+        } catch (GooglePlayServicesRepairableException e) {
+            // Thrown when Google Play Services is not installed, up-to-date, or enabled
+            // Show dialog to allow users to install, update, or otherwise enable Google Play services.
+            GooglePlayServicesUtil.getErrorDialog(e.getConnectionStatusCode(), callingActivity, 0);
+        } catch (GooglePlayServicesNotAvailableException e) {
+            Log.e("SecurityException", "Google Play Services not available.");
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        updateAndroidSecurityProvider(this);
+
         setContentView(R.layout.activity_main);
 
         mSearchBoxEditText = (EditText) findViewById(R.id.et_search_box);
@@ -82,11 +102,17 @@ public class MainActivity extends AppCompatActivity {
         mErrorMessageTextView.setVisibility(VISIBLE);
     }
 
+    private void clearErroMessageAndJsonData() {
+        mErrorMessageTextView.setVisibility(INVISIBLE);
+        mSearchResultsTextView.setVisibility(INVISIBLE);
+    }
+
     public class GithubQueryTask extends AsyncTask<URL, Void, String> {
 
         @Override
         protected void onPreExecute() {
             super.onPreExecute();
+            clearErroMessageAndJsonData();
             mLoadingProgressBar.setVisibility(VISIBLE);
         }
 
