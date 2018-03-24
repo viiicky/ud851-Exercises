@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
      */
     public void onClickOpenAddressButton(View v) {
         String address = "Corporation Girls High School, Jogupalya, Ulsoor";
-        showMap(new Uri.Builder().scheme("geo").path("0,0").query(address).build());
+        showMap(new Uri.Builder().scheme("geo").path("0,0").appendQueryParameter("q", address).build());
     }
 
     /**
