@@ -29,6 +29,8 @@ import com.example.android.background.sync.ReminderTasks;
 import com.example.android.background.sync.WaterReminderIntentService;
 import com.example.android.background.utilities.PreferenceUtilities;
 
+import static com.example.android.background.utilities.NotificationUtils.remindUserBecauseCharging;
+
 public class MainActivity extends AppCompatActivity implements
         SharedPreferences.OnSharedPreferenceChangeListener {
 
@@ -89,8 +91,9 @@ public class MainActivity extends AppCompatActivity implements
         startService(incrementWaterCountIntent);
     }
 
-    // TODO (15) Create a method called testNotification that triggers NotificationUtils' remindUserBecauseCharging
-
+    public void testNotification(View view) {
+        remindUserBecauseCharging(this);
+    }
     @Override
     protected void onDestroy() {
         super.onDestroy();
